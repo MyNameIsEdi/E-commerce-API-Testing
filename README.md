@@ -1,115 +1,128 @@
 
+# 🚀 Comprehensive API Automation & Testing Suite
 
-# Postman API Testing Project
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![Newman](https://img.shields.io/badge/Newman-Automated_Testing-4CAF50?style=for-the-badge&logo=postman)
+![JSON](https://img.shields.io/badge/Format-JSON-blue?style=for-the-badge)
 
-This repository contains an automated API testing collection built with Postman. It is designed to test a comprehensive backend system handling user authentication, content recommendations, user comments, admin settings, and shopping cart functionalities.
+A fully automated, end-to-end Postman collection designed to validate a complex backend ecosystem. This project covers everything from secure user authentication and administrative controls to content recommendation CRUD operations and shopping cart management.
 
-The collection is modularized into distinct folders (representing logical teams or domains) and includes automated environment variable chaining and QA test output logging.
+## 📑 Table of Contents
+- [Features](#-features)
+- [Collection Structure](#-collection-structure)
+- [Prerequisites & Setup](#-prerequisites--setup)
+- [Environment Variables](#-environment-variables)
+- [Automated Testing Strategy](#-automated-testing-strategy)
+- [Executing the Tests](#-executing-the-tests)
 
-## 🚀 Features
+---
 
-* **End-to-End Workflows:** Automatically passes dynamically generated data (like auth tokens and resource IDs) from one request to the next.
-* **Built-in Assertions:** Every request includes tests to validate successful HTTP status codes and acceptable response times.
-* **Console Logging:** Custom QA Test Outputs are generated in the Postman Console for easy debugging and reporting.
-* **Organized Structure:** Endpoints are neatly separated into designated "Team" folders for modular execution.
+## ✨ Features
 
-## 📋 Folder Structure & API Workflow
+* **Data-Driven Workflows:** Utilizes automated environment variable setting/chaining to pass state (e.g., auth tokens, generated IDs) between requests seamlessly.
+* **Idempotent Execution:** Includes a dedicated "Teardown" phase that deletes generated test data, ensuring the environment remains clean for subsequent test runs.
+* **Granular QA Output:** Every endpoint logs highly readable `QA TEST OUTPUT` directly to the Postman Console, detailing request parameters, latency, and JSON payloads for rapid debugging.
+* **Comprehensive Coverage:** Validates standard HTTP methods (`GET`, `POST`, `PUT`, `DELETE`) across varied authorization scopes (Public, User, Admin).
 
-The collection is divided into the following functional areas:
+---
 
-* **Team 1: Authentication & User Profile**
-* Registers a new user, handles login to retrieve Bearer tokens, and tests the password recovery/reset flows.
+## 🗂 Collection Structure
 
+The collection is modularized into feature-specific domains:
 
-* **Team 2: Recommendations CRUD**
-* Creates, fetches, and updates recommendations. Automatically captures the newly created recommendation ID (`rec_id`) for downstream use.
+```text
+📦 API Testing Project
+├── 📁 Team 1: Auth & User Profile
+│   ├── POST /auth/register (Registers test user)
+│   ├── POST /auth/login (Extracts Bearer token)
+│   └── PUT  /api/profile/password (Tests password resets)
+├── 📁 Team 2: Recommendations
+│   ├── POST /api/recommendations (Creates entity & extracts rec_id)
+│   ├── GET  /api/recommendations/{rec_id}
+│   └── PUT  /api/recommendations/{rec_id}
+├── 📁 Team 3: Comments
+│   ├── POST /api/recommendations/{rec_id}/comments (Captures bad_c_id)
+│   └── GET  /api/recommendations/{rec_id}/comments
+├── 📁 Team 4: Admin Roles & Settings
+│   ├── POST /auth/login (Admin scope)
+│   ├── POST /api/admin/users/{user_id}/ban & /unban
+│   └── PUT  /api/admin/settings/recommendations_enabled
+├── 📁 Team 5: Shopping Cart
+│   ├── GET  /api/cart
+│   └── PUT  /api/cart (Add/Clear items)
+└── 📁 Delete: Teardown / Cleanup
+    ├── DELETE /api/recommendations/{rec_id}/comments/{bad_c_id}
+    ├── DELETE /api/recommendations/{rec_id}
+    └── DELETE /api/profile/me (Deletes test user)
 
+```
 
-* **Team 3: Comments System**
-* Retrieves comments for a recommendation and posts new comments, capturing the comment ID (`bad_c_id`) for moderation testing.
+---
 
+## ⚙️ Prerequisites & Setup
 
-* **Team 4: Admin & Moderation**
-* Authenticates an admin user, tests user banning/unbanning endpoints, and manages global platform settings (like toggling recommendations on/off).
+1. Download and install [Postman](https://www.postman.com/downloads/).
+2. Clone this repository to your local machine.
+3. Open Postman, click **Import**, and select the `API_testing_project.postman_collection.json` file.
+4. Create a new **Postman Environment** and add the required initial variables (see below).
 
+---
 
-* **Team 5: Shopping Cart**
-* Tests fetching, adding items, checking, and clearing the user's shopping cart.
+## 🔐 Environment Variables
 
+To execute the tests successfully, define the following variables in your Postman Environment prior to running the collection:
 
-* **Delete: Cleanup Phase**
-* Teardown requests to maintain an idempotent environment. Deletes the generated comments, recommendations, and the test user profile.
+### ✍️ User-Defined Variables (Required)
 
+| Variable | Description | Example |
+| --- | --- | --- |
+| `BaseURL` | The root endpoint of the API | `https://sv-students-recommend.onrender.com` |
+| `name` | Display name for the test account | `Test User` |
+| `email` | Email for the standard test account | `testuser@example.com` |
+| `password` | Password for the standard test account | `SecurePass123!` |
+| `adminuser` | Existing Admin account email | `admin@example.com` |
+| `adminpass` | Existing Admin account password | `AdminPass123!` |
 
+### 🤖 Auto-Populated Variables (Do not set manually)
 
-## 🛠️ Environment Variables Setup
+The scripts will automatically handle the assignment and lifecycle of these variables during execution:
+`user_id`, `testuser_token`, `rec_id`, `admin_token`, `bad_c_id`
 
-To run this collection successfully, you need to set up a Postman Environment. Some variables must be provided by you initially, while others are automatically populated by the collection's test scripts during execution.
+---
 
-### Initial Variables to Provide
+## 🧪 Automated Testing Strategy
 
-| Variable | Description |
-| --- | --- |
-| `BaseURL` | The root URL of the API (e.g., `[https://sv-students-recommend.onrender.com](https://sv-students-recommend.onrender.com)`) |
-| `name` | Test user's display name |
-| `email` | Test user's email address |
-| `password` | Test user's password |
-| `adminuser` | Email address of an admin account |
-| `adminpass` | Password for the admin account |
+Every request is accompanied by robust JavaScript assertions in the **Tests** tab. The standard baseline tests include:
 
-### Auto-Generated Variables (Do Not Set)
+1. **HTTP Status Code Verification:** `pm.response.to.be.success;` ensures endpoints are reachable and resolve successfully (2xx status codes).
+2. **Performance Assertions:** `pm.expect(pm.response.responseTime).to.be.below(10000);` guarantees latency thresholds are met.
+3. **Data Integrity Checks:** Post-execution scripts validate JSON schemas and verify that newly created resources return the expected properties.
 
-*The collection will automatically set and update these variables as it runs:*
+---
 
-* `user_id`
-* `testuser_token`
-* `rec_id`
-* `admin_token`
-* `bad_c_id`
+## 💻 Executing the Tests
 
-## 🔬 Automated Tests
+### Option 1: Postman GUI
 
-Every endpoint in this collection includes standard Postman tests written in JavaScript:
+Select your configured environment in the top right corner. Click on the collection folder name, navigate to the **Run** tab, ensure all requests are checked, and click **Run Collection**.
 
-1. **Status Code Validation:** Ensures the API returns a `2xx` Success status code.
-2. **Performance/Latency Validation:** Ensures the API response time is below a specific threshold (e.g., 1000ms or 10000ms).
+### Option 2: Newman CLI (For CI/CD)
 
-Additionally, the collection utilizes the `pm.test` and `console.log` functions to print an organized **QA TEST OUTPUT** block in the Postman console detailing:
+You can run this suite directly from your terminal, which is ideal for integrating into GitHub Actions, Jenkins, or GitLab CI.
 
-* Request Name & URL
-* HTTP Method
-* Status Code
-* Response Time
-* Parsed JSON Payload
-
-## 💻 How to Run Locally
-
-### Using the Postman App
-
-1. Download and open **Postman**.
-2. Click **Import** and upload the `collection.json` file.
-3. Create a new Environment and add the **Initial Variables** listed above.
-4. Select the environment from the top-right dropdown.
-5. Click on the Collection name, go to the **Run** tab, and click **Run Collection**.
-
-### Using Newman (CLI)
-
-You can run this project from your terminal using Postman's command-line collection runner, Newman.
-
-1. Install Newman globally via npm:
 ```bash
+# Install Newman globally
 npm install -g newman
 
-```
-
-
-2. Run the collection, passing in your environment file:
-
-```bash
-   newman run API_testing_project.postman_collection.json -e your_environment.postman_environment.json
+# Run the collection with your environment variables
+newman run API_testing_project.postman_collection.json -e your_env.postman_environment.json
 
 ```
 
 ```
+
+***
+
+Would you like me to also write a `github-actions.yml` workflow file so you can show potential employers that this collection runs automatically in CI/CD whenever you push code?
 
 ```
