@@ -1,0 +1,1980 @@
+{
+  "info": {
+    "_postman_id": "eb49abaf-cc0b-4acb-8c3b-c364b8da2297",
+    "name": "API testing project",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51793445"
+  },
+  "item": [
+    {
+      "name": "Team 1",
+      "item": [
+        {
+          "name": "Register new user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseData = pm.response.json();\r",
+                  "\r",
+                  "\r",
+                  "if (responseData.id) {\r",
+                  "    pm.environment.set(\"user_id\", responseData.id);\r",
+                  "}\r",
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/auth/register?skip_captcha=true",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ],
+              "query": [
+                {
+                  "key": "skip_captcha",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get user token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseData = pm.response.json();\r",
+                  "\r",
+                  "\r",
+                  "if (responseData.access_token) {\r",
+                  "    pm.environment.set(\"testuser_token\", responseData.access_token);\r",
+                  "}\r",
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/auth/login",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "password reset email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "/// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"redirect_to\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/auth/recover",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "auth",
+                "recover"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "password reset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{email}}\",\r\n  \"new_password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/profile/password",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "profile",
+                "password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get user token after reset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseData = pm.response.json();\r",
+                  "\r",
+                  "\r",
+                  "if (responseData.access_token) {\r",
+                  "    pm.environment.set(\"testuser_token\", responseData.access_token);\r",
+                  "}\r",
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/auth/login",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team 2",
+      "item": [
+        {
+          "name": "post recommendations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});\r",
+                  "// 2. המרת התשובה מהשרת לאובייקט JSON כדי שנוכל לקרוא אותה\r",
+                  "const responseData = pm.response.json();\r",
+                  "\r",
+                  "// 3. חילוץ מזהה ההמלצה ושמירתו למשתנה סביבה בשם \"rec_id\"\r",
+                  "// (הקוד בודק אם השדה נקרא id או rec_id בתשובה ושומר אותו בהתאם)\r",
+                  "if (responseData.id) {\r",
+                  "    pm.environment.set(\"rec_id\", responseData.id);\r",
+                  "} else if (responseData.rec_id) {\r",
+                  "    pm.environment.set(\"rec_id\", responseData.rec_id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "type": "text",
+                  "key": "name",
+                  "value": "Edi Mazor"
+                },
+                {
+                  "type": "text",
+                  "key": "category",
+                  "value": "Movie"
+                },
+                {
+                  "type": "text",
+                  "key": "description",
+                  "value": "API Test"
+                },
+                {
+                  "type": "text",
+                  "key": "recommender_name",
+                  "value": "Team 2"
+                },
+                {
+                  "type": "text",
+                  "key": "website_link",
+                  "value": "string"
+                },
+                {
+                  "type": "text",
+                  "key": "image",
+                  "value": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: multipart/form-data' \\\r\n  -F 'name=1' \\\r\n  -F 'category=Movie' \\\r\n  -F 'description=API Test' \\\r\n  -F 'recommender_name=Team 2' \\\r\n  -F 'website_link=string' \\\r\n  -F 'image='"
+          },
+          "response": []
+        },
+        {
+          "name": "get recommendation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{rec_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/%7B%7Brec_id%7D%7D' \\\r\n  -H 'accept: application/json'"
+          },
+          "response": []
+        },
+        {
+          "name": "update recommendation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// חלק 1: הדפסת פלט מסודר עבור דו\"ח ה-QA\r",
+                  "// ==========================================\r",
+                  "console.log(\"=== QA Test Output: \" + pm.info.requestName + \" ===\");\r",
+                  "console.log(\"URL:\", pm.request.url.toString());\r",
+                  "console.log(\"Method:\", pm.request.method);\r",
+                  "console.log(\"Status Code:\", pm.response.code);\r",
+                  "console.log(\"Response Time:\", pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "// נסיון לחלץ ולהדפיס את גוף התשובה (אם קיים ובפורמט JSON)\r",
+                  "try {\r",
+                  "    const responseData = pm.response.json();\r",
+                  "    console.log(\"Response Body:\", responseData);\r",
+                  "} catch (e) {\r",
+                  "    console.log(\"Response Body: No JSON content\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "\r",
+                  "// ==========================================\r",
+                  "// חלק 2: עמידה בדרישת ה-2 טסטים לפרויקט\r",
+                  "// ==========================================\r",
+                  "\r",
+                  "// בדיקה 1: מוודא שהבקשה עברה בהצלחה (מחזיר סטטוס ממשפחת ה-200)\r",
+                  "// *הערה: אם זו בדיקה שלילית (למשל ציפייה ל-401 או 422), שנו את הפקודה ל- pm.response.to.have.status(401);\r",
+                  "pm.test(\"Status code is successful (2xx)\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "// בדיקה 2: בדיקת ביצועים - מוודא שזמן התגובה סביר (מתחת לשנייה אחת)\r",
+                  "pm.test(\"Response time is less than 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+                  "});\r",
+                  "\r",
+                  "const responseData = pm.response.json();\r",
+                  "\r",
+                  "if (responseData.id) {\r",
+                  "    pm.environment.set(\"rec_id\", responseData.id);\r",
+                  "} else if (responseData.rec_id) {\r",
+                  "    pm.environment.set(\"rec_id\", responseData.rec_id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Edi M\",\r\n  \"category\": \"Book\",\r\n  \"description\": \"API Test\",\r\n  \"recommender_name\": \"Edi Mazor from Team 2\",\r\n  \"website_link\": \"edix@outlook.co.il\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{rec_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec_id' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"name\": \"string\",\r\n  \"category\": \"Book\",\r\n  \"description\": \"string\",\r\n  \"recommender_name\": \"string\",\r\n  \"website_link\": \"string\"\r\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "get recommendation new",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{rec_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/%7B%7Brec_id%7D%7D' \\\r\n  -H 'accept: application/json'"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team 3",
+      "item": [
+        {
+          "name": "recommendation comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// חלק 1: הדפסת פלט מסודר עבור דו\"ח ה-QA\r",
+                  "// ==========================================\r",
+                  "console.log(\"=== QA Test Output: \" + pm.info.requestName + \" ===\");\r",
+                  "console.log(\"URL:\", pm.request.url.toString());\r",
+                  "console.log(\"Method:\", pm.request.method);\r",
+                  "console.log(\"Status Code:\", pm.response.code);\r",
+                  "console.log(\"Response Time:\", pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "// נסיון לחלץ ולהדפיס את גוף התשובה (אם קיים ובפורמט JSON)\r",
+                  "try {\r",
+                  "    const responseData = pm.response.json();\r",
+                  "    console.log(\"Response Body:\", responseData);\r",
+                  "} catch (e) {\r",
+                  "    console.log(\"Response Body: No JSON content\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "\r",
+                  "// ==========================================\r",
+                  "// חלק 2: עמידה בדרישת ה-2 טסטים לפרויקט\r",
+                  "// ==========================================\r",
+                  "\r",
+                  "// בדיקה 1: מוודא שהבקשה עברה בהצלחה (מחזיר סטטוס ממשפחת ה-200)\r",
+                  "// *הערה: אם זו בדיקה שלילית (למשל ציפייה ל-401 או 422), שנו את הפקודה ל- pm.response.to.have.status(401);\r",
+                  "pm.test(\"Status code is successful (2xx)\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "// בדיקה 2: בדיקת ביצועים - מוודא שזמן התגובה סביר (מתחת לשנייה אחת)\r",
+                  "pm.test(\"Response time is less than 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{rec_id}}",
+                "comments"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec_id/comments' \\\r\n  -H 'accept: application/json'"
+          },
+          "response": []
+        },
+        {
+          "name": "create bad comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseData = pm.response.json();\r",
+                  "\r",
+                  "\r",
+                  "if (responseData.commenter_id) {\r",
+                  "    pm.environment.set(\"bad_c_id\", responseData.commenter_id);\r",
+                  "}\r",
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 1,\r\n  \"comment_text\": \"Oh no, its bad!!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{rec_id}}",
+                "comments"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec%20id/comments' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"rating\": 1,\r\n  \"comment_text\": \"string\"\r\n}'"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team 4",
+      "item": [
+        {
+          "name": "get admin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseData = pm.response.json();\r",
+                  "\r",
+                  "\r",
+                  "if (responseData.access_token) {\r",
+                  "    pm.environment.set(\"admin_token\", responseData.access_token);\r",
+                  "}\r",
+                  "\r",
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{adminuser}}\",\r\n  \"password\": \"{{adminpass}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/auth/login",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ban-user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/admin/users/{{user_id}}/ban",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "ban"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/users/user_id/ban' \\\r\n  -H 'accept: application/json' \\\r\n  -d ''"
+          },
+          "response": []
+        },
+        {
+          "name": "unban",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "/// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/admin/users/{{user_id}}/unban",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "unban"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/users/used_id/unban' \\\r\n  -H 'accept: application/json' \\\r\n  -d ''"
+          },
+          "response": []
+        },
+        {
+          "name": "settings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/admin/settings",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/settings' \\\r\n  -H 'accept: application/json'"
+          },
+          "response": []
+        },
+        {
+          "name": "turn_off_rec",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"value\": \"false\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/admin/settings/recommendations_enabled",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings",
+                "recommendations_enabled"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/settings/Turn%20off' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"value\": \"false\"\r\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "turn_on_rec",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"value\": \"true\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/admin/settings/recommendations_enabled",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings",
+                "recommendations_enabled"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/settings/Turn%20off' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"value\": \"false\"\r\n}'"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team 5",
+      "item": [
+        {
+          "name": "get cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/cart",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json'"
+          },
+          "response": []
+        },
+        {
+          "name": "add to cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"items\": [\r\n    {\r\n      \"additionalProp1\": {}\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/cart",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"items\": [\r\n    {\r\n      \"additionalProp1\": {}\r\n    }\r\n  ]\r\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "check cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/cart",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json'"
+          },
+          "response": []
+        },
+        {
+          "name": "clear cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"items\": [\r\n\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseURL}}/api/cart",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"items\": [\r\n    {\r\n      \"additionalProp1\": {}\r\n    }\r\n  ]\r\n}'"
+          },
+          "response": []
+        },
+        {
+          "name": "check cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/cart",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json'"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "delete",
+      "item": [
+        {
+          "name": "delete bad comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "accept",
+                "value": "*/*"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments/{{bad_c_id}}",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{rec_id}}",
+                "comments",
+                "{{bad_c_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'DELETE' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec/comments/cid' \\\r\n  -H 'accept: */*'"
+          },
+          "response": []
+        },
+        {
+          "name": "delete recommendation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "accept",
+                "value": "*/*"
+              }
+            ],
+            "url": {
+              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "recommendations",
+                "{{rec_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X 'DELETE' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/1' \\\r\n  -H 'accept: */*'"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ==========================================\r",
+                  "// 🚀 QA TEST OUTPUT 🚀\r",
+                  "// ==========================================\r",
+                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
+                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
+                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
+                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
+                  "\r",
+                  "try {\r",
+                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
+                  "} catch(e) {\r",
+                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
+                  "}\r",
+                  "console.log(\"==========================================\");\r",
+                  "\r",
+                  "// --- Required Project Tests ---\r",
+                  "pm.test(\"Status code is successful\", function () {\r",
+                  "    pm.response.to.be.success; \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is under 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{testuser_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BaseURL}}/api/profile/me",
+              "host": [
+                "{{BaseURL}}"
+              ],
+              "path": [
+                "api",
+                "profile",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
