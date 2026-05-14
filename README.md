@@ -1,6 +1,4 @@
-Here is a comprehensive and structured `README.md` file tailored for your GitHub repository based on the Postman collection you provided.
 
----
 
 # Postman API Testing Project
 
