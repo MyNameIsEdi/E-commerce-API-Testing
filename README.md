@@ -265,15 +265,3 @@ On a clean run, the final console message is:
 ```
 
 ---
-
-## Team Assignments
-
-| Team | Domain | Members | Endpoints Covered |
-|------|--------|---------|-------------------|
-| Team 1 | Auth & Profile | אנסטסיה, רון, שגב | `/auth/register`, `/auth/login`, `/auth/recover`, `/api/profile/me`, `/api/profile/token`, `/api/profile/password` |
-| Team 2 | Recommendations | אדי, קסנייה, אביעד | `/api/recommendations` (GET/POST/PUT/DELETE), filter by category |
-| Team 3 | Comments & Blacklist | סיון, יונתן ובמן, כרמית | `/api/recommendations/{id}/comments`, `/api/admin/blacklist` |
-| Team 4 | Admin | אלרן, יעקב, יהונתן כהן | `/api/admin/users`, `/api/admin/users/{id}/ban`, `/api/admin/settings` |
-| Team 5 | Cart & Cleanup | איליה, אנדריי | `/api/cart` (GET/PUT), teardown |
-
-> **Note for Team 4:** Admin credentials require special permissions. Contact the course instructor to receive access before running the collection.
