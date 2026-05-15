@@ -155,7 +155,7 @@ npm install -g newman
 
 # Run the full suite
 newman run SV_Students_Recommend_Collection_v3_FINAL.json \
-  -e SV_Students_Recommend_Environment_FIXED.json \
+  -e Environment.json \
   --env-var "email=testuser-$(date +%s)@sv-test.dev" \
   --reporters cli,junit \
   --reporter-junit-export results/report.xml
