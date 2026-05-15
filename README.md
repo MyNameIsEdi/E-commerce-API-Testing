@@ -1,128 +1,279 @@
+# SV Students Recommend — API Test Suite
 
-# 🚀 Comprehensive API Automation & Testing Suite
+<div align="center">
 
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
-![Newman](https://img.shields.io/badge/Newman-Automated_Testing-4CAF50?style=for-the-badge&logo=postman)
-![JSON](https://img.shields.io/badge/Format-JSON-blue?style=for-the-badge)
+![Newman](https://img.shields.io/badge/Newman-CLI_Runner-4CAF50?style=for-the-badge&logo=node.js&logoColor=white)
+![OAS 3.1](https://img.shields.io/badge/OpenAPI-3.1-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white)
+![Status](https://img.shields.io/badge/Tests-Passing-brightgreen?style=for-the-badge)
 
-A fully automated, end-to-end Postman collection designed to validate a complex backend ecosystem. This project covers everything from secure user authentication and administrative controls to content recommendation CRUD operations and shopping cart management.
+**A fully automated, end-to-end Postman collection for the SV College practice API.**  
+Covers authentication, recommendations, comments, admin controls, cart management — and a clean teardown.
 
-## 📑 Table of Contents
-- [Features](#-features)
-- [Collection Structure](#-collection-structure)
-- [Prerequisites & Setup](#-prerequisites--setup)
-- [Environment Variables](#-environment-variables)
-- [Automated Testing Strategy](#-automated-testing-strategy)
-- [Executing the Tests](#-executing-the-tests)
+[Live API →](https://sv-students-recommend.onrender.com) · [Swagger Docs →](https://sv-students-recommend.onrender.com/docs) · [OpenAPI JSON →](https://sv-students-recommend.onrender.com/openapi.json)
+
+</div>
 
 ---
 
-## ✨ Features
+## Table of Contents
 
-* **Data-Driven Workflows:** Utilizes automated environment variable setting/chaining to pass state (e.g., auth tokens, generated IDs) between requests seamlessly.
-* **Idempotent Execution:** Includes a dedicated "Teardown" phase that deletes generated test data, ensuring the environment remains clean for subsequent test runs.
-* **Granular QA Output:** Every endpoint logs highly readable `QA TEST OUTPUT` directly to the Postman Console, detailing request parameters, latency, and JSON payloads for rapid debugging.
-* **Comprehensive Coverage:** Validates standard HTTP methods (`GET`, `POST`, `PUT`, `DELETE`) across varied authorization scopes (Public, User, Admin).
+- [Overview](#overview)
+- [Collection Structure](#collection-structure)
+- [Bugs Found](#bugs-found)
+- [Environment Variables](#environment-variables)
+- [Running the Tests](#running-the-tests)
+- [Test Strategy](#test-strategy)
+- [Clean Slate Principle](#clean-slate-principle)
+- [Team Assignments](#team-assignments)
 
 ---
 
-## 🗂 Collection Structure
+## Overview
 
-The collection is modularized into feature-specific domains:
+This collection was built directly from the live OpenAPI 3.1 spec (`/openapi.json`) and validates every documented endpoint across all authorization scopes — public, authenticated user, and admin.
 
-```text
-📦 API Testing Project
-├── 📁 Team 1: Auth & User Profile
-│   ├── POST /auth/register (Registers test user)
-│   ├── POST /auth/login (Extracts Bearer token)
-│   └── PUT  /api/profile/password (Tests password resets)
-├── 📁 Team 2: Recommendations
-│   ├── POST /api/recommendations (Creates entity & extracts rec_id)
-│   ├── GET  /api/recommendations/{rec_id}
-│   └── PUT  /api/recommendations/{rec_id}
-├── 📁 Team 3: Comments
-│   ├── POST /api/recommendations/{rec_id}/comments (Captures bad_c_id)
-│   └── GET  /api/recommendations/{rec_id}/comments
-├── 📁 Team 4: Admin Roles & Settings
-│   ├── POST /auth/login (Admin scope)
-│   ├── POST /api/admin/users/{user_id}/ban & /unban
-│   └── PUT  /api/admin/settings/recommendations_enabled
-├── 📁 Team 5: Shopping Cart
-│   ├── GET  /api/cart
-│   └── PUT  /api/cart (Add/Clear items)
-└── 📁 Delete: Teardown / Cleanup
-    ├── DELETE /api/recommendations/{rec_id}/comments/{bad_c_id}
-    ├── DELETE /api/recommendations/{rec_id}
-    └── DELETE /api/profile/me (Deletes test user)
+Key design decisions:
+
+- **No hardcoded values.** Every ID, token, and dynamic value is captured from prior responses and stored as an environment variable.
+- **Schema-accurate tests.** Each assertion is written against the actual OpenAPI schemas (`UserOut`, `RecommendationOut`, `CommentOut`, etc.), not assumed structures.
+- **Negative tests included.** Every team folder contains at least one negative test case (wrong credentials, missing auth, out-of-range values, invalid enums) — as required by the project spec.
+- **Clean teardown.** The final folder deletes every resource created during the run and clears all auto-populated environment variables, leaving zero pollution for the next run.
+
+---
+
+## Collection Structure
 
 ```
+📦 SV Students Recommend — API Test Suite v3
+│
+├── 📁 Team 1 — Auth & Profile
+│   ├── ✅ Register New User                  POST  /auth/register
+│   ├── ❌ Register – Duplicate Email          POST  /auth/register        [negative]
+│   ├── ❌ Register – Missing Required Field   POST  /auth/register        [negative]
+│   ├── ✅ Login – Get User Token              POST  /auth/login
+│   ├── ❌ Login – Wrong Password              POST  /auth/login           [negative]
+│   ├── ✅ Get My Profile                      GET   /api/profile/me
+│   ├── ✅ Get Bearer Token                    GET   /api/profile/token
+│   ├── ✅ Password Reset – Request Email      POST  /auth/recover
+│   ├── ✅ Change Password                     PUT   /api/profile/password
+│   └── ✅ Login After Password Change         POST  /auth/login
+│
+├── 📁 Team 4 — Admin  ← run before Teams 2 & 3 to get admin_token
+│   ├── ✅ Login – Get Admin Token             POST  /auth/login
+│   ├── ✅ Get All Users                       GET   /api/admin/users
+│   ├── ❌ Get All Users – Regular Token       GET   /api/admin/users      [negative]
+│   ├── ✅ Ban User                            POST  /api/admin/users/{id}/ban
+│   ├── ✅ Unban User                          POST  /api/admin/users/{id}/unban
+│   ├── ✅ Get Admin Settings                  GET   /api/admin/settings
+│   ├── ✅ Turn Off Recommendations            PUT   /api/admin/settings/recommendations_enabled
+│   └── ✅ Turn On Recommendations             PUT   /api/admin/settings/recommendations_enabled
+│
+├── 📁 Team 2 — Recommendations
+│   ├── ✅ Get All Recommendations             GET   /api/recommendations
+│   ├── ✅ Get All – Filter by Category        GET   /api/recommendations?category=Movie
+│   ├── ✅ Create Recommendation               POST  /api/recommendations
+│   ├── ❌ Create – No Token                   POST  /api/recommendations  [negative]
+│   ├── ✅ Get Recommendation by ID            GET   /api/recommendations/{id}
+│   ├── ❌ Get – Non-Existent ID               GET   /api/recommendations/{id} [negative]
+│   ├── ✅ Update Recommendation               PUT   /api/recommendations/{id}
+│   └── ❌ Update – Invalid Category Enum      PUT   /api/recommendations/{id} [negative]
+│
+├── 📁 Team 3 — Comments & Blacklist
+│   ├── ✅ Get Comments for Recommendation     GET   /api/recommendations/{id}/comments
+│   ├── ✅ Add Comment                         POST  /api/recommendations/{id}/comments
+│   ├── ❌ Add Comment – Rating Out of Range   POST  /api/recommendations/{id}/comments [negative]
+│   ├── ❌ Add Comment – No Auth               POST  /api/recommendations/{id}/comments [negative]
+│   ├── ✅ Get Blacklist                        GET   /api/admin/blacklist
+│   ├── ✅ Add Email to Blacklist              POST  /api/admin/blacklist
+│   └── ❌ Add to Blacklist – Regular Token    POST  /api/admin/blacklist  [negative]
+│
+├── 📁 Team 5 — Cart
+│   ├── ✅ Get Cart                            GET   /api/cart
+│   ├── ✅ Add Item to Cart                    PUT   /api/cart
+│   ├── ✅ Verify Cart Has Item                GET   /api/cart
+│   ├── ❌ Get Cart – No Auth                  GET   /api/cart             [negative]
+│   ├── ✅ Clear Cart                          PUT   /api/cart
+│   └── ✅ Verify Cart Is Empty                GET   /api/cart
+│
+└── 📁 Teardown — Cleanup
+    ├── 🧹 Delete Comment                      DELETE /api/recommendations/{id}/comments/{id}
+    ├── 🧹 Delete Blacklist Entry              DELETE /api/admin/blacklist/{entry_id}
+    ├── 🧹 Delete Recommendation               DELETE /api/recommendations/{id}
+    └── 🧹 Delete User Account                 DELETE /api/profile/me
+```
+
+> **Run order:** Team 1 → Team 4 → Team 2 → Team 3 → Team 5 → Teardown
 
 ---
 
-## ⚙️ Prerequisites & Setup
+## Bugs Found
 
-1. Download and install [Postman](https://www.postman.com/downloads/).
-2. Clone this repository to your local machine.
-3. Open Postman, click **Import**, and select the `API_testing_project.postman_collection.json` file.
-4. Create a new **Postman Environment** and add the required initial variables (see below).
+These bugs were discovered by cross-referencing the Postman collection against the live OpenAPI 3.1 spec (`/openapi.json`).
+
+| # | Severity | Endpoint | Bug | Expected | Actual / In Original Collection |
+|---|----------|----------|-----|----------|---------------------------------|
+| 1 | 🔴 High | `PUT /api/profile/password` | Extra field `email` sent in request body | `PasswordChange` schema contains only `new_password` | Collection sent `{ email, new_password }` — `email` is not a valid field |
+| 2 | 🔴 High | All DELETE endpoints | Wrong expected status code | `204 No Content` (documented) | Collection tested for generic `2xx` — a `200` would also pass, masking regressions |
+| 3 | 🔴 High | `POST /api/recommendations/{id}/comments` | `comment_id` captured from wrong field | `CommentOut.id` is the comment's ID | Collection read `commenter_id` — that's the *user's* ID, not the comment's |
+| 4 | 🟡 Medium | `PUT /api/admin/settings/{key}` | Wrong expected status code | `200 OK` with body (documented) | Collection used `.to.be.success` which accepts 200/201/204 equally |
+| 5 | 🟡 Medium | `PUT /api/recommendations/{id}` | `category` field is an enum, not a free string | Only `Book`, `Movie`, `Series`, `Activity`, `Other` are valid | No validation tested; any string would pass |
+| 6 | 🟡 Medium | `POST /api/recommendations/{id}/comments` | `rating` has min/max constraints | Integer `1–5` only (schema: `minimum: 1.0, maximum: 5.0`) | No out-of-range test existed |
+| 7 | 🟡 Medium | `POST /api/recommendations` | `website_link` sent as literal string `"string"` | A real URL like `https://example.com` | Typo from Postman's auto-generated placeholder value |
+| 8 | 🟢 Low | `GET /api/profile/me`, `GET /api/profile/token`, `GET /api/admin/users`, `GET /api/admin/blacklist`, `GET /api/admin/settings`, `GET /api/cart`, `PUT /api/cart` | Response schema is `{}` in OpenAPI | Documented response body structure | All 7 endpoints declare an empty `{}` schema — structural assertions are impossible without a real schema |
+| 9 | 🟢 Low | `GET /api/recommendations/{id}` | `404` response not documented | When a non-existent UUID is queried, a `404` should be returned and documented | OpenAPI only documents `200` and `422` for this endpoint |
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
-To execute the tests successfully, define the following variables in your Postman Environment prior to running the collection:
-
-### ✍️ User-Defined Variables (Required)
+### Required before running (set manually)
 
 | Variable | Description | Example |
-| --- | --- | --- |
-| `BaseURL` | The root endpoint of the API | `https://sv-students-recommend.onrender.com` |
-| `name` | Display name for the test account | `Test User` |
-| `email` | Email for the standard test account | `testuser@example.com` |
-| `password` | Password for the standard test account | `SecurePass123!` |
-| `adminuser` | Existing Admin account email | `admin@example.com` |
-| `adminpass` | Existing Admin account password | `AdminPass123!` |
+|----------|-------------|---------|
+| `BaseURL` | Root URL of the API | `https://sv-students-recommend.onrender.com` |
+| `name` | Display name for the test account | `Test Student` |
+| `email` | Email for the test account (must be unique per run) | `testuser@sv-test.dev` |
+| `password` | Password for the test account (min 4 chars) | `TestPass1234!` |
+| `adminuser` | Admin account email | `hagai@svcollege.co.il` |
+| `adminpass` | Admin account password | `test1234` |
 
-### 🤖 Auto-Populated Variables (Do not set manually)
+### Auto-populated during the run (do not set manually)
 
-The scripts will automatically handle the assignment and lifecycle of these variables during execution:
-`user_id`, `testuser_token`, `rec_id`, `admin_token`, `bad_c_id`
-
----
-
-## 🧪 Automated Testing Strategy
-
-Every request is accompanied by robust JavaScript assertions in the **Tests** tab. The standard baseline tests include:
-
-1. **HTTP Status Code Verification:** `pm.response.to.be.success;` ensures endpoints are reachable and resolve successfully (2xx status codes).
-2. **Performance Assertions:** `pm.expect(pm.response.responseTime).to.be.below(10000);` guarantees latency thresholds are met.
-3. **Data Integrity Checks:** Post-execution scripts validate JSON schemas and verify that newly created resources return the expected properties.
+| Variable | Set by | Cleared by |
+|----------|--------|------------|
+| `user_id` | Register New User | 🧹 Delete User Account |
+| `testuser_token` | Login – Get User Token | 🧹 Delete User Account |
+| `admin_token` | Login – Get Admin Token | *(persists — admin account is not deleted)* |
+| `rec_id` | Create Recommendation | 🧹 Delete Recommendation |
+| `comment_id` | Add Comment | 🧹 Delete Comment |
+| `blacklist_id` | Add Email to Blacklist | 🧹 Delete Blacklist Entry |
 
 ---
 
-## 💻 Executing the Tests
+## Running the Tests
 
-### Option 1: Postman GUI
+### Option 1 — Postman GUI
 
-Select your configured environment in the top right corner. Click on the collection folder name, navigate to the **Run** tab, ensure all requests are checked, and click **Run Collection**.
+1. Click **Import** and select both files:
+   - `SV_Students_Recommend_Collection_v3_FINAL.json`
+   - `SV_Students_Recommend_Environment_FIXED.json`
+2. Select the `SV Students Recommend – Environment` from the environment dropdown (top right).
+3. Fill in the six required variables (`BaseURL`, `name`, `email`, `password`, `adminuser`, `adminpass`).
+4. Right-click the collection → **Run collection**.
+5. Ensure **Run folder by folder in order** is enabled and click **Run**.
 
-### Option 2: Newman CLI (For CI/CD)
+### Option 2 — Newman CLI
 
-You can run this suite directly from your terminal, which is ideal for integrating into GitHub Actions, Jenkins, or GitLab CI.
+Ideal for CI/CD pipelines (GitHub Actions, Jenkins, GitLab CI).
 
 ```bash
-# Install Newman globally
+# Install Newman
 npm install -g newman
 
-# Run the collection with your environment variables
-newman run API_testing_project.postman_collection.json -e your_env.postman_environment.json
-
+# Run the full suite
+newman run SV_Students_Recommend_Collection_v3_FINAL.json \
+  -e SV_Students_Recommend_Environment_FIXED.json \
+  --env-var "email=testuser-$(date +%s)@sv-test.dev" \
+  --reporters cli,junit \
+  --reporter-junit-export results/report.xml
 ```
 
+> **Tip:** Use `$(date +%s)` or a UUID in the email to guarantee uniqueness across runs.
+
+### Option 3 — GitHub Actions (CI/CD)
+
+```yaml
+name: API Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Postman Collection
+        run: |
+          newman run SV_Students_Recommend_Collection_v3_FINAL.json \
+            -e SV_Students_Recommend_Environment_FIXED.json \
+            --env-var "email=ci-$(date +%s)@sv-test.dev" \
+            --env-var "BaseURL=${{ secrets.API_BASE_URL }}" \
+            --env-var "adminuser=${{ secrets.ADMIN_EMAIL }}" \
+            --env-var "adminpass=${{ secrets.ADMIN_PASS }}" \
+            --reporters cli,junit \
+            --reporter-junit-export results/report.xml
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newman-report
+          path: results/report.xml
 ```
 
-***
+Store sensitive values (`adminuser`, `adminpass`, etc.) as **GitHub Secrets** — never commit them to the repository.
 
-Would you like me to also write a `github-actions.yml` workflow file so you can show potential employers that this collection runs automatically in CI/CD whenever you push code?
+---
+
+## Test Strategy
+
+Every request includes a minimum of **4 assertions** in the Tests tab:
 
 ```
+1. HTTP status code — exact match against the OpenAPI documented code
+2. Response time    — must be below 5 000 ms (accounts for cold-starts on Render's free tier)
+3. Schema check     — verifies that required fields exist and have the correct type
+4. Data integrity   — verifies that returned values match what was sent (e.g. returned email = sent email)
+```
+
+Negative tests additionally assert:
+- That error status codes fall in the documented range (e.g. `422` for validation errors, `401` for missing auth, `403` for insufficient privileges)
+- That `access_token` is **absent** from error responses
+- That `detail` is present in `HTTPValidationError` bodies
+
+All console output follows the format:
+```
+[Request Name] STATUS_CODE | RESPONSE_TIME ms
+```
+
+---
+
+## Clean Slate Principle
+
+A test run that does not clean up after itself is a failed test run — it pollutes the environment and causes false failures in subsequent runs.
+
+This collection enforces clean slate via the **Teardown** folder, which:
+
+1. Deletes the comment (`DELETE /api/recommendations/{id}/comments/{comment_id}`)
+2. Deletes the blacklist entry (`DELETE /api/admin/blacklist/{blacklist_id}`)
+3. Deletes the recommendation (`DELETE /api/recommendations/{rec_id}`)
+4. Deletes the test user account (`DELETE /api/profile/me`)
+
+After each deletion the corresponding environment variable is unset via `pm.environment.unset(...)`.  
+On a clean run, the final console message is:
+
+```
+✅ ====== CLEANUP COMPLETE – ENVIRONMENT IS CLEAN ====== ✅
+```
+
+---
+
+## Team Assignments
+
+| Team | Domain | Members | Endpoints Covered |
+|------|--------|---------|-------------------|
+| Team 1 | Auth & Profile | אנסטסיה, רון, שגב | `/auth/register`, `/auth/login`, `/auth/recover`, `/api/profile/me`, `/api/profile/token`, `/api/profile/password` |
+| Team 2 | Recommendations | אדי, קסנייה, אביעד | `/api/recommendations` (GET/POST/PUT/DELETE), filter by category |
+| Team 3 | Comments & Blacklist | סיון, יונתן ובמן, כרמית | `/api/recommendations/{id}/comments`, `/api/admin/blacklist` |
+| Team 4 | Admin | אלרן, יעקב, יהונתן כהן | `/api/admin/users`, `/api/admin/users/{id}/ban`, `/api/admin/settings` |
+| Team 5 | Cart & Cleanup | איליה, אנדריי | `/api/cart` (GET/PUT), teardown |
+
+> **Note for Team 4:** Admin credentials require special permissions. Contact the course instructor to receive access before running the collection.
