@@ -107,24 +107,6 @@ Key design decisions:
 
 ---
 
-## Bugs Found
-
-These bugs were discovered by cross-referencing the Postman collection against the live OpenAPI 3.1 spec (`/openapi.json`).
-
-| # | Severity | Endpoint | Bug | Expected | Actual / In Original Collection |
-|---|----------|----------|-----|----------|---------------------------------|
-| 1 | 🔴 High | `PUT /api/profile/password` | Extra field `email` sent in request body | `PasswordChange` schema contains only `new_password` | Collection sent `{ email, new_password }` — `email` is not a valid field |
-| 2 | 🔴 High | All DELETE endpoints | Wrong expected status code | `204 No Content` (documented) | Collection tested for generic `2xx` — a `200` would also pass, masking regressions |
-| 3 | 🔴 High | `POST /api/recommendations/{id}/comments` | `comment_id` captured from wrong field | `CommentOut.id` is the comment's ID | Collection read `commenter_id` — that's the *user's* ID, not the comment's |
-| 4 | 🟡 Medium | `PUT /api/admin/settings/{key}` | Wrong expected status code | `200 OK` with body (documented) | Collection used `.to.be.success` which accepts 200/201/204 equally |
-| 5 | 🟡 Medium | `PUT /api/recommendations/{id}` | `category` field is an enum, not a free string | Only `Book`, `Movie`, `Series`, `Activity`, `Other` are valid | No validation tested; any string would pass |
-| 6 | 🟡 Medium | `POST /api/recommendations/{id}/comments` | `rating` has min/max constraints | Integer `1–5` only (schema: `minimum: 1.0, maximum: 5.0`) | No out-of-range test existed |
-| 7 | 🟡 Medium | `POST /api/recommendations` | `website_link` sent as literal string `"string"` | A real URL like `https://example.com` | Typo from Postman's auto-generated placeholder value |
-| 8 | 🟢 Low | `GET /api/profile/me`, `GET /api/profile/token`, `GET /api/admin/users`, `GET /api/admin/blacklist`, `GET /api/admin/settings`, `GET /api/cart`, `PUT /api/cart` | Response schema is `{}` in OpenAPI | Documented response body structure | All 7 endpoints declare an empty `{}` schema — structural assertions are impossible without a real schema |
-| 9 | 🟢 Low | `GET /api/recommendations/{id}` | `404` response not documented | When a non-existent UUID is queried, a `404` should be returned and documented | OpenAPI only documents `200` and `422` for this endpoint |
-
----
-
 ## Environment Variables
 
 ### Required before running (set manually)
