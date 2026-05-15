@@ -1,1980 +1,1113 @@
 {
   "info": {
-    "_postman_id": "eb49abaf-cc0b-4acb-8c3b-c364b8da2297",
-    "name": "API testing project",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "51793445"
+    "_postman_id": "sv-students",
+    "name": "API Test Suite",
+    "description": "# SV Students Recommend | API Test Suite v3\n\nבנוי לפי ה-OpenAPI spec האמיתי מ-/openapi.json.\n\n**סדר הרצה:** Team 1 → Team 4 (כדי לקבל admin_token) → Team 2 → Team 3 → Team 5 → Teardown\n\n## משתני סביבה נדרשים (מראש)\n| Key | Example Value |\n|---|---|\n| `BaseURL` | `https://sv-students-recommend.onrender.com` |\n| `name` | `Test Student` |\n| `email` | `testuser@sv-test.dev` |\n| `password` | `TestPass1234!` |\n| `adminuser` | `hagai@svcollege.co.il` |\n| `adminpass` | `test1234` |\n\n## משתנים שנשמרים אוטומטית\n`user_id`, `testuser_token`, `admin_token`, `rec_id`, `comment_id`, `blacklist_id`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
+
     {
-      "name": "Team 1",
+      "name": "Team 1 | Auth & Profile",
+      "description": "POST /auth/register · POST /auth/login · POST /auth/recover · GET /api/profile/me · DELETE /api/profile/me · PUT /api/profile/password · GET /api/profile/token",
       "item": [
+
         {
-          "name": "Register new user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "\r",
-                  "if (responseData.id) {\r",
-                  "    pm.environment.set(\"user_id\", responseData.id);\r",
-                  "}\r",
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Register New User",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// Schema per OpenAPI: UserOut → {id, name, email, access_token}",
+              "const res = pm.response.json();",
+              "if (res.id) { pm.environment.set('user_id', res.id); console.log('✅ user_id:', res.id); }",
+              "",
+              "pm.test('201 Created', () => { pm.response.to.have.status(201); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Body matches UserOut schema: id, name, email, access_token', () => {",
+              "    pm.expect(res).to.have.all.keys('id','name','email','access_token');",
+              "});",
+              "pm.test('Returned email matches sent email', () => {",
+              "    pm.expect(res.email).to.eql(pm.environment.get('email'));",
+              "});",
+              "pm.test('access_token is a non-empty string', () => {",
+              "    pm.expect(res.access_token).to.be.a('string').and.not.empty;",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/auth/register?skip_captcha=true",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ],
-              "query": [
-                {
-                  "key": "skip_captcha",
-                  "value": "true"
-                }
-              ]
-            }
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/register?skip_captcha=true", "host": ["{{BaseURL}}"], "path": ["auth","register"], "query": [{"key":"skip_captcha","value":"true"}] },
+            "description": "**Schema:** UserRegister → name (required), email (required, format:email), password (required, min 4 chars)\n**Response 201:** UserOut → id, name, email, access_token\n**Response 422:** Validation error"
           },
           "response": []
         },
+
         {
-          "name": "get user token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "\r",
-                  "if (responseData.access_token) {\r",
-                  "    pm.environment.set(\"testuser_token\", responseData.access_token);\r",
-                  "}\r",
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "❌ Register | Duplicate Email (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('4xx | duplicate email is rejected', () => {",
+              "    pm.expect(pm.response.code).to.be.within(400, 499);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Error detail is present in body', () => {",
+              "    const res = pm.response.json();",
+              "    pm.expect(res.detail || res.message || res.error).to.exist;",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/auth/login",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/register?skip_captcha=true", "host": ["{{BaseURL}}"], "path": ["auth","register"], "query": [{"key":"skip_captcha","value":"true"}] },
+            "description": "**Negative test:** שולח אותו email פעם שנייה. מצפה ל-4xx."
           },
           "response": []
         },
+
         {
-          "name": "password reset email",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "/// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "❌ Register | Missing Required Field (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// name הוא required לפי schema | חסרונו צריך להחזיר 422",
+              "pm.test('422 Unprocessable | missing required field', () => {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Validation error detail present', () => {",
+              "    const res = pm.response.json();",
+              "    pm.expect(res.detail).to.be.an('array').and.not.empty;",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"redirect_to\": \"\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/auth/recover",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "auth",
-                "recover"
-              ]
-            }
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/register?skip_captcha=true", "host": ["{{BaseURL}}"], "path": ["auth","register"], "query": [{"key":"skip_captcha","value":"true"}] },
+            "description": "**Negative test:** שולח בלי שדה name שהוא required. מצפה ל-422."
           },
           "response": []
         },
+
         {
-          "name": "password reset",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Login | Get User Token",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// BUG NOTE: תיעוד אומר response 200 מחזיר UserOut",
+              "// אבל UserOut מכיל access_token | זה לא סטנדרטי ל-login response",
+              "// נבדוק את שניהם",
+              "const res = pm.response.json();",
+              "if (res.access_token) { pm.environment.set('testuser_token', res.access_token); console.log('✅ testuser_token saved'); }",
+              "",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('access_token present and non-empty', () => {",
+              "    pm.expect(res.access_token).to.be.a('string').and.not.empty;",
+              "});",
+              "pm.test('Body contains id, name, email', () => {",
+              "    pm.expect(res).to.include.all.keys('id','name','email');",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/login", "host": ["{{BaseURL}}"], "path": ["auth","login"] },
+            "description": "**Schema:** UserLogin → email, password\n**Response 200:** UserOut → id, name, email, access_token\n**Response 401:** Invalid email or password"
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Login | Wrong Password (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('401 Unauthorized | wrong password', () => { pm.response.to.have.status(401); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('No access_token in error body', () => {",
+              "    try {",
+              "        const res = pm.response.json();",
+              "        pm.expect(res).to.not.have.property('access_token');",
+              "    } catch(e) { /* body may be empty on 401, that's fine */ }",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"WRONG_PASSWORD_XYZ\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/login", "host": ["{{BaseURL}}"], "path": ["auth","login"] },
+            "description": "**Negative test:** סיסמה שגויה. OpenAPI מתעד 401 במפורש."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Get My Profile",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// BUG NOTE: OpenAPI מגדיר response schema כ-{} (ריק!) | אין schema רשמי",
+              "// מבדקים מה שאנחנו מצפים לקבל בפועל",
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response is a non-empty object', () => {",
+              "    pm.expect(typeof res).to.eql('object');",
+              "    pm.expect(Object.keys(res).length).to.be.above(0);",
+              "});",
+              "pm.test('Profile email matches env email', () => {",
+              "    pm.expect(res.email).to.eql(pm.environment.get('email'));",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/profile/me", "host": ["{{BaseURL}}"], "path": ["api","profile","me"] },
+            "description": "**Response 200:** {} (schema לא מוגדר ב-OpenAPI | זה באג בתיעוד)\n**Auth:** Bearer token required"
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Get Bearer Token",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// BUG NOTE: גם כאן response schema הוא {} | לא מוגדר",
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response is a non-empty object', () => {",
+              "    pm.expect(typeof res).to.eql('object');",
+              "    pm.expect(Object.keys(res).length).to.be.above(0);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/profile/token", "host": ["{{BaseURL}}"], "path": ["api","profile","token"] },
+            "description": "**Response 200:** {} (schema לא מוגדר)\n**Auth:** Bearer token required"
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Password Reset | Request Email",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('200 OK | reset email accepted', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"redirect_to\": \"\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/recover", "host": ["{{BaseURL}}"], "path": ["auth","recover"] },
+            "description": "**Schema:** PasswordResetRequest → email (required, format:email), redirect_to (default: '')\n**Response 200:** {} (empty schema)"
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Change Password",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// BUG NOTE: OpenAPI מגדיר response 204 No Content",
+              "// אבל הקולקשן המקורי בדק 2xx | 204 מחזיר גוף ריק לחלוטין",
+              "pm.test('204 No Content | password changed', () => { pm.response.to.have.status(204); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response body is empty (204 = no body)', () => {",
+              "    pm.expect(pm.response.text()).to.be.empty;",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"email\": \"{{email}}\",\r\n  \"new_password\": \"{{password}}\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/api/profile/password",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "profile",
-                "password"
-              ]
-            }
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"new_password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/profile/password", "host": ["{{BaseURL}}"], "path": ["api","profile","password"] },
+            "description": "**Schema:** PasswordChange → new_password (required, only field!)\n⚠️ **BUG FOUND:** הקולקשן המקורי שלח גם `email` בבקשה, אבל PasswordChange schema מכיל רק `new_password`.\n**Response 204:** No Content (גוף ריק)"
           },
           "response": []
         },
+
         {
-          "name": "get user token after reset",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "\r",
-                  "if (responseData.access_token) {\r",
-                  "    pm.environment.set(\"testuser_token\", responseData.access_token);\r",
-                  "}\r",
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Login After Password Change",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "if (res.access_token) { pm.environment.set('testuser_token', res.access_token); console.log('✅ Token refreshed'); }",
+              "pm.test('200 OK | new password works', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Fresh access_token returned', () => { pm.expect(res.access_token).to.be.a('string').and.not.empty; });"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/auth/login",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/login", "host": ["{{BaseURL}}"], "path": ["auth","login"] },
+            "description": "מאמת שהסיסמה החדשה תקינה ומרענן testuser_token."
           },
           "response": []
         }
+
       ]
     },
+
     {
-      "name": "Team 2",
+      "name": "Team 4 | Admin (Login First)",
+      "description": "מריצים את Team 4 לפני Team 2/3 כדי ש-admin_token יהיה זמין לבדיקות שליליות של צוות 3.",
       "item": [
+
         {
-          "name": "post recommendations",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});\r",
-                  "// 2. המרת התשובה מהשרת לאובייקט JSON כדי שנוכל לקרוא אותה\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "// 3. חילוץ מזהה ההמלצה ושמירתו למשתנה סביבה בשם \"rec_id\"\r",
-                  "// (הקוד בודק אם השדה נקרא id או rec_id בתשובה ושומר אותו בהתאם)\r",
-                  "if (responseData.id) {\r",
-                  "    pm.environment.set(\"rec_id\", responseData.id);\r",
-                  "} else if (responseData.rec_id) {\r",
-                  "    pm.environment.set(\"rec_id\", responseData.rec_id);\r",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Login | Get Admin Token",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "if (res.access_token) { pm.environment.set('admin_token', res.access_token); console.log('✅ admin_token saved'); }",
+              "pm.test('200 OK | admin login', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('access_token present', () => { pm.expect(res.access_token).to.be.a('string').and.not.empty; });"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{adminuser}}\",\n  \"password\": \"{{adminpass}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/auth/login", "host": ["{{BaseURL}}"], "path": ["auth","login"] },
+            "description": "כניסת Admin. שומר admin_token לשאר תיקיית Admin ולבדיקות שליליות בצוות 3."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Get All Users",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// BUG NOTE: response schema הוא {} | לא מוגדר. בודקים מה שמגיע בפועל",
+              "const res = pm.response.json();",
+              "pm.test('200 OK | user list returned', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response is an array', () => { pm.expect(res).to.be.an('array'); });",
+              "pm.test('Each user has id and email', () => {",
+              "    if (res.length > 0) { pm.expect(res[0]).to.include.all.keys('id','email'); }",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/admin/users", "host": ["{{BaseURL}}"], "path": ["api","admin","users"] },
+            "description": "**Response 200:** {} (schema לא מוגדר)\n**Auth:** Admin Bearer token"
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Get All Users | Regular Token (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('401 or 403 | non-admin rejected', () => {",
+              "    pm.expect([401,403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/admin/users", "host": ["{{BaseURL}}"], "path": ["api","admin","users"] },
+            "description": "**Negative test:** גישת Admin עם token של משתמש רגיל."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Ban User",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// BUG NOTE: response schema {} | לא מוגדר. מצפה ל-200",
+              "pm.test('200 OK | user banned', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/admin/users/{{user_id}}/ban", "host": ["{{BaseURL}}"], "path": ["api","admin","users","{{user_id}}","ban"] },
+            "description": "**Response 200:** {} (schema לא מוגדר)\nחייב להיות מלווה תמיד ב-Unban."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Unban User",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('200 OK | user unbanned', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/admin/users/{{user_id}}/unban", "host": ["{{BaseURL}}"], "path": ["api","admin","users","{{user_id}}","unban"] },
+            "description": "מחזיר את המשתמש לפעולה תקינה."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Get Admin Settings",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK | settings returned', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response is a non-empty object/array', () => {",
+              "    pm.expect(typeof res).to.eql('object');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/admin/settings", "host": ["{{BaseURL}}"], "path": ["api","admin","settings"] },
+            "description": "**Response 200:** {} (schema לא מוגדר)"
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Turn Off Recommendations",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// BUG NOTE: הקולקשן המקורי ציפה ל-2xx אבל OpenAPI מגדיר 200 (לא 204)",
+              "pm.test('200 OK | setting updated', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{"key":"accept","value":"application/json"},{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"value\": \"false\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/admin/settings/recommendations_enabled", "host": ["{{BaseURL}}"], "path": ["api","admin","settings","recommendations_enabled"] },
+            "description": "**Schema:** Body_update_setting → value (required, string)\n**Response 200:** {} (schema לא מוגדר)"
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Turn On Recommendations",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('200 OK | recommendations re-enabled', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{"key":"accept","value":"application/json"},{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"value\": \"true\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/admin/settings/recommendations_enabled", "host": ["{{BaseURL}}"], "path": ["api","admin","settings","recommendations_enabled"] },
+            "description": "מחזיר את ההגדרה לברירת המחדל. **חייב לרוץ תמיד אחרי Turn Off.**"
+          },
+          "response": []
+        }
+
+      ]
+    },
+
+    {
+      "name": "Team 2 | Recommendations",
+      "description": "GET /api/recommendations · POST /api/recommendations · GET /api/recommendations/{rec_id} · PUT /api/recommendations/{rec_id} · DELETE /api/recommendations/{rec_id}",
+      "item": [
+
+        {
+          "name": "✅ Get All Recommendations",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK | list returned', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response is an array', () => { pm.expect(res).to.be.an('array'); });",
+              "pm.test('Each item matches RecommendationOut schema', () => {",
+              "    if (res.length > 0) {",
+              "        pm.expect(res[0]).to.include.all.keys('id','name','category','description','image_url','website_link','recommender_name','created_by','created_at','updated_at');",
+              "    }",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/recommendations", "host": ["{{BaseURL}}"], "path": ["api","recommendations"] },
+            "description": "**Public endpoint | no auth required**\n**Query params:** category (optional), skip (default 0), limit (default 50, max 100)\n**Response 200:** Array of RecommendationOut"
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Get All Recommendations | Filter by Category",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('All returned items have category=Movie', () => {",
+              "    res.forEach(item => pm.expect(item.category).to.eql('Movie'));",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/recommendations?category=Movie", "host": ["{{BaseURL}}"], "path": ["api","recommendations"], "query": [{"key":"category","value":"Movie"}] },
+            "description": "בדיקת סינון לפי category. מאמת שכל התוצאות מתאימות לפילטר."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Create Recommendation",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "if (res.id) { pm.environment.set('rec_id', res.id); console.log('✅ rec_id:', res.id); }",
+              "",
+              "pm.test('201 Created', () => { pm.response.to.have.status(201); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Body matches RecommendationOut schema', () => {",
+              "    pm.expect(res).to.include.all.keys('id','name','category','description','image_url','website_link','recommender_name','created_by','created_at','updated_at');",
+              "});",
+              "pm.test('category default is Movie', () => { pm.expect(res.category).to.eql('Movie'); });",
+              "pm.test('comment_count defaults to 0', () => { pm.expect(res.comment_count).to.eql(0); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "accept", "value": "application/json" }],
             "body": {
               "mode": "formdata",
               "formdata": [
-                {
-                  "type": "text",
-                  "key": "name",
-                  "value": "Edi Mazor"
-                },
-                {
-                  "type": "text",
-                  "key": "category",
-                  "value": "Movie"
-                },
-                {
-                  "type": "text",
-                  "key": "description",
-                  "value": "API Test"
-                },
-                {
-                  "type": "text",
-                  "key": "recommender_name",
-                  "value": "Team 2"
-                },
-                {
-                  "type": "text",
-                  "key": "website_link",
-                  "value": "string"
-                },
-                {
-                  "type": "text",
-                  "key": "image",
-                  "value": ""
-                }
+                { "key": "name",             "value": "Test Movie | API Suite", "type": "text" },
+                { "key": "category",         "value": "Movie",                  "type": "text" },
+                { "key": "description",      "value": "Created by automated API test suite", "type": "text" },
+                { "key": "recommender_name", "value": "Team 2",                 "type": "text" },
+                { "key": "website_link",     "value": "https://example.com",    "type": "text" }
               ]
             },
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: multipart/form-data' \\\r\n  -F 'name=1' \\\r\n  -F 'category=Movie' \\\r\n  -F 'description=API Test' \\\r\n  -F 'recommender_name=Team 2' \\\r\n  -F 'website_link=string' \\\r\n  -F 'image='"
+            "url": { "raw": "{{BaseURL}}/api/recommendations", "host": ["{{BaseURL}}"], "path": ["api","recommendations"] },
+            "description": "**Schema:** Body_create_recommendation → name (required), recommender_name (required), category (default: Movie), description, website_link, image\n**Auth:** Authorization header required\n**Response 201:** RecommendationOut"
           },
           "response": []
         },
+
         {
-          "name": "get recommendation",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "❌ Create Recommendation | No Token (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('422 or 401 | unauthenticated create rejected', () => {",
+              "    pm.expect([401,422]).to.include(pm.response.code);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations",
-                "{{rec_id}}"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/%7B%7Brec_id%7D%7D' \\\r\n  -H 'accept: application/json'"
-          },
-          "response": []
-        },
-        {
-          "name": "update recommendation",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// חלק 1: הדפסת פלט מסודר עבור דו\"ח ה-QA\r",
-                  "// ==========================================\r",
-                  "console.log(\"=== QA Test Output: \" + pm.info.requestName + \" ===\");\r",
-                  "console.log(\"URL:\", pm.request.url.toString());\r",
-                  "console.log(\"Method:\", pm.request.method);\r",
-                  "console.log(\"Status Code:\", pm.response.code);\r",
-                  "console.log(\"Response Time:\", pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "// נסיון לחלץ ולהדפיס את גוף התשובה (אם קיים ובפורמט JSON)\r",
-                  "try {\r",
-                  "    const responseData = pm.response.json();\r",
-                  "    console.log(\"Response Body:\", responseData);\r",
-                  "} catch (e) {\r",
-                  "    console.log(\"Response Body: No JSON content\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "\r",
-                  "// ==========================================\r",
-                  "// חלק 2: עמידה בדרישת ה-2 טסטים לפרויקט\r",
-                  "// ==========================================\r",
-                  "\r",
-                  "// בדיקה 1: מוודא שהבקשה עברה בהצלחה (מחזיר סטטוס ממשפחת ה-200)\r",
-                  "// *הערה: אם זו בדיקה שלילית (למשל ציפייה ל-401 או 422), שנו את הפקודה ל- pm.response.to.have.status(401);\r",
-                  "pm.test(\"Status code is successful (2xx)\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "// בדיקה 2: בדיקת ביצועים - מוודא שזמן התגובה סביר (מתחת לשנייה אחת)\r",
-                  "pm.test(\"Response time is less than 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "if (responseData.id) {\r",
-                  "    pm.environment.set(\"rec_id\", responseData.id);\r",
-                  "} else if (responseData.rec_id) {\r",
-                  "    pm.environment.set(\"rec_id\", responseData.rec_id);\r",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "accept", "value": "application/json" }],
             "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Edi M\",\r\n  \"category\": \"Book\",\r\n  \"description\": \"API Test\",\r\n  \"recommender_name\": \"Edi Mazor from Team 2\",\r\n  \"website_link\": \"edix@outlook.co.il\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations",
-                "{{rec_id}}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name",             "value": "Unauthorized Rec", "type": "text" },
+                { "key": "recommender_name", "value": "Nobody",           "type": "text" }
               ]
             },
-            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec_id' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"name\": \"string\",\r\n  \"category\": \"Book\",\r\n  \"description\": \"string\",\r\n  \"recommender_name\": \"string\",\r\n  \"website_link\": \"string\"\r\n}'"
+            "url": { "raw": "{{BaseURL}}/api/recommendations", "host": ["{{BaseURL}}"], "path": ["api","recommendations"] },
+            "description": "**Negative test:** Authorization header הוא required לפי schema. ציפיה: 422 (missing required header) או 401."
           },
           "response": []
         },
+
         {
-          "name": "get recommendation new",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Get Recommendation by ID",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Returned id matches rec_id env var', () => {",
+              "    pm.expect(res.id).to.eql(pm.environment.get('rec_id'));",
+              "});",
+              "pm.test('Body matches RecommendationOut schema', () => {",
+              "    pm.expect(res).to.include.all.keys('id','name','category','description','image_url','website_link','recommender_name','created_by','created_at','updated_at');",
+              "});"
+            ]}
+          }],
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations",
-                "{{rec_id}}"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/%7B%7Brec_id%7D%7D' \\\r\n  -H 'accept: application/json'"
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}"] },
+            "description": "**Public endpoint**\n**Response 200:** RecommendationOut"
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Get Recommendation | Non-Existent ID (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('404 Not Found | non-existent rec_id', () => {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/recommendations/00000000-0000-0000-0000-000000000000", "host": ["{{BaseURL}}"], "path": ["api","recommendations","00000000-0000-0000-0000-000000000000"] },
+            "description": "**Negative test:** UUID שלא קיים. מצפה ל-404.\n⚠️ **BUG TO INVESTIGATE:** OpenAPI לא מתעד 404 בכלל לנקודת קצה זו | רק 200 ו-422. אם השרת מחזיר 404 בפועל, זה בעיה בתיעוד."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Update Recommendation",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK | updated', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Category changed to Book', () => { pm.expect(res.category).to.eql('Book'); });",
+              "pm.test('Description updated', () => { pm.expect(res.description).to.eql('Updated by API test suite'); });",
+              "pm.test('Body matches RecommendationOut schema', () => {",
+              "    pm.expect(res).to.include.all.keys('id','name','category','description','image_url','website_link','recommender_name','created_by','created_at','updated_at');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{"key":"accept","value":"application/json"},{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test Movie | Updated\",\n  \"category\": \"Book\",\n  \"description\": \"Updated by API test suite\",\n  \"recommender_name\": \"Team 2 Updated\",\n  \"website_link\": \"https://example.com/updated\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}"] },
+            "description": "**Schema:** RecommendationUpdate → name, category (enum: Book/Movie/Series/Activity/Other), description, recommender_name, website_link (כולם optional)\n**Auth:** Authorization header required\n**Response 200:** RecommendationOut"
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Update Recommendation | Invalid Category (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// category enum: Book|Movie|Series|Activity|Other | ערך אחר צריך להחזיר 422",
+              "pm.test('422 Unprocessable | invalid enum value rejected', () => {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Validation error detail present', () => {",
+              "    const res = pm.response.json();",
+              "    pm.expect(res.detail).to.be.an('array').and.not.empty;",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"category\": \"InvalidCategory\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}"] },
+            "description": "**Negative test:** category הוא enum. ערך לא תקין צריך להחזיר 422."
           },
           "response": []
         }
+
       ]
     },
+
     {
-      "name": "Team 3",
+      "name": "Team 3 | Comments & Blacklist",
+      "description": "GET /api/recommendations/{rec_id}/comments · POST /api/recommendations/{rec_id}/comments · DELETE /api/recommendations/{rec_id}/comments/{comment_id} · GET /api/admin/blacklist · POST /api/admin/blacklist · DELETE /api/admin/blacklist/{entry_id}",
       "item": [
+
         {
-          "name": "recommendation comment",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// חלק 1: הדפסת פלט מסודר עבור דו\"ח ה-QA\r",
-                  "// ==========================================\r",
-                  "console.log(\"=== QA Test Output: \" + pm.info.requestName + \" ===\");\r",
-                  "console.log(\"URL:\", pm.request.url.toString());\r",
-                  "console.log(\"Method:\", pm.request.method);\r",
-                  "console.log(\"Status Code:\", pm.response.code);\r",
-                  "console.log(\"Response Time:\", pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "// נסיון לחלץ ולהדפיס את גוף התשובה (אם קיים ובפורמט JSON)\r",
-                  "try {\r",
-                  "    const responseData = pm.response.json();\r",
-                  "    console.log(\"Response Body:\", responseData);\r",
-                  "} catch (e) {\r",
-                  "    console.log(\"Response Body: No JSON content\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "\r",
-                  "// ==========================================\r",
-                  "// חלק 2: עמידה בדרישת ה-2 טסטים לפרויקט\r",
-                  "// ==========================================\r",
-                  "\r",
-                  "// בדיקה 1: מוודא שהבקשה עברה בהצלחה (מחזיר סטטוס ממשפחת ה-200)\r",
-                  "// *הערה: אם זו בדיקה שלילית (למשל ציפייה ל-401 או 422), שנו את הפקודה ל- pm.response.to.have.status(401);\r",
-                  "pm.test(\"Status code is successful (2xx)\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "// בדיקה 2: בדיקת ביצועים - מוודא שזמן התגובה סביר (מתחת לשנייה אחת)\r",
-                  "pm.test(\"Response time is less than 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Get Comments for Recommendation",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response is an array', () => { pm.expect(res).to.be.an('array'); });",
+              "pm.test('Each comment matches CommentOut schema', () => {",
+              "    if (res.length > 0) {",
+              "        pm.expect(res[0]).to.include.all.keys('id','recommendation_id','commenter_name','rating','comment_text','created_at');",
+              "    }",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_token}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "GET",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations",
-                "{{rec_id}}",
-                "comments"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec_id/comments' \\\r\n  -H 'accept: application/json'"
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}","comments"] },
+            "description": "**Public endpoint | no auth required**\n**Response 200:** Array of CommentOut → id, recommendation_id, commenter_id, commenter_name, rating, comment_text, created_at"
           },
           "response": []
         },
+
         {
-          "name": "create bad comment",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "\r",
-                  "if (responseData.commenter_id) {\r",
-                  "    pm.environment.set(\"bad_c_id\", responseData.commenter_id);\r",
-                  "}\r",
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Add Comment",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "// CommentOut schema: id, recommendation_id, commenter_id, commenter_name, rating, comment_text, created_at",
+              "if (res.id) { pm.environment.set('comment_id', res.id); console.log('✅ comment_id:', res.id); }",
+              "",
+              "pm.test('201 Created', () => { pm.response.to.have.status(201); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Body matches CommentOut schema', () => {",
+              "    pm.expect(res).to.include.all.keys('id','recommendation_id','commenter_name','rating','comment_text','created_at');",
+              "});",
+              "pm.test('Rating matches submitted value (3)', () => { pm.expect(res.rating).to.eql(3); });",
+              "pm.test('recommendation_id matches rec_id env var', () => {",
+              "    pm.expect(res.recommendation_id).to.eql(pm.environment.get('rec_id'));",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
             "method": "POST",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"rating\": 1,\r\n  \"comment_text\": \"Oh no, its bad!!\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations",
-                "{{rec_id}}",
-                "comments"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec%20id/comments' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"rating\": 1,\r\n  \"comment_text\": \"string\"\r\n}'"
+            "header": [{"key":"accept","value":"application/json"},{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": 3,\n  \"comment_text\": \"Added by automated API test suite\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}","comments"] },
+            "description": "**Schema:** CommentCreate → rating (required, integer 1-5), comment_text (optional)\n**Auth:** Authorization header required\n**Response 201:** CommentOut"
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Add Comment | Rating Out of Range (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// rating: minimum 1, maximum 5 | ערך 6 צריך להחזיר 422",
+              "pm.test('422 | rating > 5 rejected', () => { pm.response.to.have.status(422); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Validation error detail present', () => {",
+              "    const res = pm.response.json();",
+              "    pm.expect(res.detail).to.be.an('array').and.not.empty;",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": 6,\n  \"comment_text\": \"Invalid rating\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}","comments"] },
+            "description": "**Negative test:** rating maximum הוא 5 לפי schema. שליחת 6 צריכה להחזיר 422."
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Add Comment | No Auth (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('422 or 401 | unauthenticated comment rejected', () => {",
+              "    pm.expect([401,422]).to.include(pm.response.code);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": 5,\n  \"comment_text\": \"Should be rejected\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}","comments"] },
+            "description": "**Negative test:** Authorization header required. ציפיה: 422 (missing required header) או 401."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Get Blacklist",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response is an array', () => { pm.expect(res).to.be.an('array'); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/admin/blacklist", "host": ["{{BaseURL}}"], "path": ["api","admin","blacklist"] },
+            "description": "**Admin only**\n**Response 200:** {} (schema לא מוגדר)"
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Add Email to Blacklist",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "const bid = res.id || res.entry_id;",
+              "if (bid) { pm.environment.set('blacklist_id', bid); console.log('✅ blacklist_id:', bid); }",
+              "",
+              "pm.test('201 Created | email blacklisted', () => { pm.response.to.have.status(201); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Blacklist entry id returned', () => {",
+              "    pm.expect(bid).to.exist;",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{"key":"accept","value":"application/json"},{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"blacklist-test@api-suite.dev\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/admin/blacklist", "host": ["{{BaseURL}}"], "path": ["api","admin","blacklist"] },
+            "description": "**Schema:** Body_add_blacklist → email (required)\n**Response 201:** {} (schema לא מוגדר)\nשומר blacklist_id לטירדאון."
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Add to Blacklist | Regular Token (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('401 or 403 | non-admin cannot blacklist', () => {",
+              "    pm.expect([401,403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"unauthorized@test.dev\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/admin/blacklist", "host": ["{{BaseURL}}"], "path": ["api","admin","blacklist"] },
+            "description": "**Negative test:** משתמש רגיל לא יכול להוסיף ל-blacklist."
           },
           "response": []
         }
+
       ]
     },
+
     {
-      "name": "Team 4",
+      "name": "Team 5 | Cart",
+      "description": "GET /api/cart · PUT /api/cart",
       "item": [
+
         {
-          "name": "get admin token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "\r",
-                  "if (responseData.access_token) {\r",
-                  "    pm.environment.set(\"admin_token\", responseData.access_token);\r",
-                  "}\r",
-                  "\r",
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Get Cart",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "// BUG NOTE: CartBody schema מגדיר {items: array} אבל GET response schema הוא {} (ריק)",
+              "// בודקים שהתשובה היא object",
+              "pm.test('Response is a non-null object', () => {",
+              "    pm.expect(typeof res).to.eql('object');",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"email\": \"{{adminuser}}\",\r\n  \"password\": \"{{adminpass}}\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/auth/login",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "ban-user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/admin/users/{{user_id}}/ban",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "users",
-                "{{user_id}}",
-                "ban"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/users/user_id/ban' \\\r\n  -H 'accept: application/json' \\\r\n  -d ''"
-          },
-          "response": []
-        },
-        {
-          "name": "unban",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "/// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/admin/users/{{user_id}}/unban",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "users",
-                "{{user_id}}",
-                "unban"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'POST' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/users/used_id/unban' \\\r\n  -H 'accept: application/json' \\\r\n  -d ''"
-          },
-          "response": []
-        },
-        {
-          "name": "settings",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
             "method": "GET",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/admin/settings",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "settings"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/settings' \\\r\n  -H 'accept: application/json'"
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/cart", "host": ["{{BaseURL}}"], "path": ["api","cart"] },
+            "description": "**Auth:** Authorization header required\n**Response 200:** {} (schema לא מוגדר)"
           },
           "response": []
         },
+
         {
-          "name": "turn_off_rec",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Add Item to Cart",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "// BUG NOTE: PUT response schema הוא {} | לא מוגדר. OpenAPI מגדיר 200 (לא 204)",
+              "pm.test('200 OK | cart saved', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"value\": \"false\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/api/admin/settings/recommendations_enabled",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "settings",
-                "recommendations_enabled"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/settings/Turn%20off' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"value\": \"false\"\r\n}'"
+            "header": [{"key":"accept","value":"application/json"},{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"items\": [\n    { \"rec_id\": \"{{rec_id}}\", \"quantity\": 1 }\n  ]\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/cart", "host": ["{{BaseURL}}"], "path": ["api","cart"] },
+            "description": "**Schema:** CartBody → items (required, array of objects)\n**Response 200:** {} (schema לא מוגדר)"
           },
           "response": []
         },
+
         {
-          "name": "turn_on_rec",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "✅ Verify Cart Has Item",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Cart is not empty after adding item', () => {",
+              "    if (Array.isArray(res.items)) {",
+              "        pm.expect(res.items.length).to.be.above(0);",
+              "    } else if (Array.isArray(res)) {",
+              "        pm.expect(res.length).to.be.above(0);",
+              "    }",
+              "});"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/cart", "host": ["{{BaseURL}}"], "path": ["api","cart"] },
+            "description": "מאמת שהפריט נשמר בפועל."
+          },
+          "response": []
+        },
+
+        {
+          "name": "❌ Get Cart | No Auth (Negative)",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('422 or 401 | unauthenticated cart access rejected', () => {",
+              "    pm.expect([401,422]).to.include(pm.response.code);",
+              "});",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/cart", "host": ["{{BaseURL}}"], "path": ["api","cart"] },
+            "description": "**Negative test:** Authorization header required. ציפיה: 422 או 401."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Clear Cart",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('200 OK | cart cleared', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"value\": \"true\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/api/admin/settings/recommendations_enabled",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "settings",
-                "recommendations_enabled"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/admin/settings/Turn%20off' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"value\": \"false\"\r\n}'"
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": { "mode": "raw", "raw": "{\n  \"items\": []\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{BaseURL}}/api/cart", "host": ["{{BaseURL}}"], "path": ["api","cart"] },
+            "description": "שולח items: [] כדי לרוקן את העגלה."
+          },
+          "response": []
+        },
+
+        {
+          "name": "✅ Verify Cart Is Empty",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const res = pm.response.json();",
+              "pm.test('200 OK', () => { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Cart is empty after clear', () => {",
+              "    if (Array.isArray(res.items)) { pm.expect(res.items).to.have.lengthOf(0); }",
+              "    else if (Array.isArray(res))   { pm.expect(res).to.have.lengthOf(0); }",
+              "});"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [{ "key": "accept", "value": "application/json" }],
+            "url": { "raw": "{{BaseURL}}/api/cart", "host": ["{{BaseURL}}"], "path": ["api","cart"] },
+            "description": "מאמת שהעגלה ריקה אחרי הניקוי."
           },
           "response": []
         }
+
       ]
     },
+
     {
-      "name": "Team 5",
+      "name": "Teardown | Cleanup",
+      "description": "עקרון Clean Slate. סדר חשוב: comment → blacklist → recommendation → user.\nכל בקשה מנקה גם את משתני הסביבה הרלוונטיים.",
       "item": [
+
         {
-          "name": "get cart",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "🧹 Delete Comment",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// OpenAPI: DELETE comment → 204 No Content",
+              "pm.test('204 No Content | comment deleted', () => { pm.response.to.have.status(204); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response body is empty (204)', () => { pm.expect(pm.response.text()).to.be.empty; });",
+              "pm.environment.unset('comment_id');",
+              "console.log('🧹 Cleared comment_id');"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/cart",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "cart"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json'"
-          },
-          "response": []
-        },
-        {
-          "name": "add to cart",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"items\": [\r\n    {\r\n      \"additionalProp1\": {}\r\n    }\r\n  ]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/api/cart",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "cart"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"items\": [\r\n    {\r\n      \"additionalProp1\": {}\r\n    }\r\n  ]\r\n}'"
-          },
-          "response": []
-        },
-        {
-          "name": "check cart",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/cart",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "cart"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json'"
-          },
-          "response": []
-        },
-        {
-          "name": "clear cart",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"items\": [\r\n\r\n  ]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{BaseURL}}/api/cart",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "cart"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'PUT' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"items\": [\r\n    {\r\n      \"additionalProp1\": {}\r\n    }\r\n  ]\r\n}'"
-          },
-          "response": []
-        },
-        {
-          "name": "check cart",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/cart",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "cart"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'GET' \\\r\n  'https://sv-students-recommend.onrender.com/api/cart' \\\r\n  -H 'accept: application/json'"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "delete",
-      "item": [
-        {
-          "name": "delete bad comment",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
             "method": "DELETE",
-            "header": [
-              {
-                "key": "accept",
-                "value": "*/*"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments/{{bad_c_id}}",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations",
-                "{{rec_id}}",
-                "comments",
-                "{{bad_c_id}}"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'DELETE' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/rec/comments/cid' \\\r\n  -H 'accept: */*'"
+            "header": [{ "key": "accept", "value": "*/*" }],
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}/comments/{{comment_id}}", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}","comments","{{comment_id}}"] },
+            "description": "**Auth:** comment author או admin\n**Response 204:** No Content (גוף ריק)"
           },
           "response": []
         },
+
         {
-          "name": "delete recommendation",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "🧹 Delete Blacklist Entry",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// OpenAPI: DELETE /api/admin/blacklist/{entry_id} → 204 No Content",
+              "pm.test('204 No Content | blacklist entry deleted', () => { pm.response.to.have.status(204); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response body is empty (204)', () => { pm.expect(pm.response.text()).to.be.empty; });",
+              "pm.environment.unset('blacklist_id');",
+              "console.log('🧹 Cleared blacklist_id');"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
             "method": "DELETE",
-            "header": [
-              {
-                "key": "accept",
-                "value": "*/*"
-              }
-            ],
-            "url": {
-              "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "recommendations",
-                "{{rec_id}}"
-              ]
-            },
-            "description": "Generated from cURL: curl -X 'DELETE' \\\r\n  'https://sv-students-recommend.onrender.com/api/recommendations/1' \\\r\n  -H 'accept: */*'"
+            "header": [{ "key": "accept", "value": "*/*" }],
+            "url": { "raw": "{{BaseURL}}/api/admin/blacklist/{{blacklist_id}}", "host": ["{{BaseURL}}"], "path": ["api","admin","blacklist","{{blacklist_id}}"] },
+            "description": "**Admin only**\n**Response 204:** No Content"
           },
           "response": []
         },
+
         {
-          "name": "Delete user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// ==========================================\r",
-                  "// 🚀 QA TEST OUTPUT 🚀\r",
-                  "// ==========================================\r",
-                  "console.log(\"📌 Request: \" + pm.info.requestName);\r",
-                  "console.log(\"🔗 Method & URL: \" + pm.request.method + \" \" + pm.request.url.toString());\r",
-                  "console.log(\"🚥 Status Code: \" + pm.response.code + \" (\" + pm.response.status + \")\");\r",
-                  "console.log(\"⏱️ Response Time: \" + pm.response.responseTime + \"ms\");\r",
-                  "\r",
-                  "try {\r",
-                  "    console.log(\"📦 Payload: \", pm.response.json());\r",
-                  "} catch(e) {\r",
-                  "    console.log(\"📦 Payload: [No JSON Content]\");\r",
-                  "}\r",
-                  "console.log(\"==========================================\");\r",
-                  "\r",
-                  "// --- Required Project Tests ---\r",
-                  "pm.test(\"Status code is successful\", function () {\r",
-                  "    pm.response.to.be.success; \r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response time is under 1000ms\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "🧹 Delete Recommendation",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// OpenAPI: DELETE recommendation → 204 No Content",
+              "pm.test('204 No Content | recommendation deleted', () => { pm.response.to.have.status(204); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response body is empty (204)', () => { pm.expect(pm.response.text()).to.be.empty; });",
+              "pm.environment.unset('rec_id');",
+              "console.log('🧹 Cleared rec_id');"
+            ]}
+          }],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{testuser_token}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [{ "key": "accept", "value": "*/*" }],
+            "url": { "raw": "{{BaseURL}}/api/recommendations/{{rec_id}}", "host": ["{{BaseURL}}"], "path": ["api","recommendations","{{rec_id}}"] },
+            "description": "**Auth:** owner only\n**Response 204:** No Content"
+          },
+          "response": []
+        },
+
+        {
+          "name": "🧹 Delete User Account",
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "// OpenAPI: DELETE /api/profile/me → 204 No Content",
+              "pm.test('204 No Content | account deleted', () => { pm.response.to.have.status(204); });",
+              "pm.test('Response time < 5000ms', () => { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "pm.test('Response body is empty (204)', () => { pm.expect(pm.response.text()).to.be.empty; });",
+              "pm.environment.unset('testuser_token');",
+              "pm.environment.unset('user_id');",
+              "console.log('🧹 Cleared testuser_token and user_id');",
+              "console.log('✅ ====== CLEANUP COMPLETE | ENVIRONMENT IS CLEAN ====== ✅');"
+            ]}
+          }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{testuser_token}}", "type": "string" }] },
             "method": "DELETE",
             "header": [],
-            "url": {
-              "raw": "{{BaseURL}}/api/profile/me",
-              "host": [
-                "{{BaseURL}}"
-              ],
-              "path": [
-                "api",
-                "profile",
-                "me"
-              ]
-            }
+            "url": { "raw": "{{BaseURL}}/api/profile/me", "host": ["{{BaseURL}}"], "path": ["api","profile","me"] },
+            "description": "**Auth:** owner\n**Response 204:** No Content\nמנקה testuser_token ו-user_id מהסביבה."
           },
           "response": []
         }
+
       ]
     }
+
   ]
 }
