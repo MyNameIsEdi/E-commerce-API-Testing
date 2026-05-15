@@ -154,7 +154,7 @@ Ideal for CI/CD pipelines (GitHub Actions, Jenkins, GitLab CI).
 npm install -g newman
 
 # Run the full suite
-newman run SV_Students_Recommend_Collection_v3_FINAL.json \
+newman run API_testing_project.postman_collection.json \
   -e Environment.json \
   --env-var "email=testuser-$(date +%s)@sv-test.dev" \
   --reporters cli,junit \
