@@ -1,0 +1,79 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "SV Students Recommend | Environment",
+  "_postman_variable_scope": "environment",
+  "values": [
+    {
+      "key": "BaseURL",
+      "value": "https://sv-students-recommend.onrender.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "name",
+      "value": "Test Student",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "email",
+      "value": "testuser-api-suite@sv-test.dev",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "password",
+      "value": "TestPass1234!",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "adminuser",
+      "value": "hagai@svcollege.co.il",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "adminpass",
+      "value": "test1234",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "testuser_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "rec_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "comment_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "blacklist_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ]
+}
