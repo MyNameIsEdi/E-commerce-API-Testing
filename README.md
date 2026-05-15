@@ -8,7 +8,7 @@
 ![Status](https://img.shields.io/badge/Tests-Passing-brightgreen?style=for-the-badge)
 
 **A fully automated, end-to-end Postman collection for the SV College practice API.**  
-Covers authentication, recommendations, comments, admin controls, cart management — and a clean teardown.
+Covers authentication, recommendations, comments, admin controls, cart management - and a clean teardown.
 
 [Live API →](https://sv-students-recommend.onrender.com) · [Swagger Docs →](https://sv-students-recommend.onrender.com/docs) · [OpenAPI JSON →](https://sv-students-recommend.onrender.com/openapi.json)
 
