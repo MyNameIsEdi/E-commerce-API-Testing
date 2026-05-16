@@ -138,8 +138,8 @@ Key design decisions:
 ### Option 1 — Postman GUI
 
 1. Click **Import** and select both files:
-   - `SV_Students_Recommend_Collection_v3_FINAL.json`
-   - `SV_Students_Recommend_Environment_FIXED.json`
+   - `API_testing_project.postman_collection.json`
+   - `Environment.json`
 2. Select the `SV Students Recommend – Environment` from the environment dropdown (top right).
 3. Fill in the six required variables (`BaseURL`, `name`, `email`, `password`, `adminuser`, `adminpass`).
 4. Right-click the collection → **Run collection**.
