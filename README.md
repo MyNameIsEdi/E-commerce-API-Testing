@@ -1,4 +1,4 @@
-# SV Students Recommend — API Test Suite
+# SV Students Recommend | API Test Suite
 
 <div align="center">
 
@@ -31,13 +31,13 @@ Covers authentication, recommendations, comments, admin controls, cart managemen
 
 ## Overview
 
-This collection was built directly from the live OpenAPI 3.1 spec (`/openapi.json`) and validates every documented endpoint across all authorization scopes — public, authenticated user, and admin.
+This collection was built directly from the live OpenAPI 3.1 spec (`/openapi.json`) and validates every documented endpoint across all authorization scopes | public, authenticated user, and admin.
 
 Key design decisions:
 
 - **No hardcoded values.** Every ID, token, and dynamic value is captured from prior responses and stored as an environment variable.
 - **Schema-accurate tests.** Each assertion is written against the actual OpenAPI schemas (`UserOut`, `RecommendationOut`, `CommentOut`, etc.), not assumed structures.
-- **Negative tests included.** Every team folder contains at least one negative test case (wrong credentials, missing auth, out-of-range values, invalid enums) — as required by the project spec.
+- **Negative tests included.** Every team folder contains at least one negative test case (wrong credentials, missing auth, out-of-range values, invalid enums) | as required by the project spec.
 - **Clean teardown.** The final folder deletes every resource created during the run and clears all auto-populated environment variables, leaving zero pollution for the next run.
 
 ---
@@ -45,9 +45,9 @@ Key design decisions:
 ## Collection Structure
 
 ```
-📦 SV Students Recommend — API Test Suite v3
+📦 SV Students Recommend | API Test Suite v3
 │
-├── 📁 Team 1 — Auth & Profile
+├── 📁 Team 1 | Auth & Profile
 │   ├── ✅ Register New User                  POST  /auth/register
 │   ├── ❌ Register – Duplicate Email          POST  /auth/register        [negative]
 │   ├── ❌ Register – Missing Required Field   POST  /auth/register        [negative]
@@ -59,7 +59,7 @@ Key design decisions:
 │   ├── ✅ Change Password                     PUT   /api/profile/password
 │   └── ✅ Login After Password Change         POST  /auth/login
 │
-├── 📁 Team 4 — Admin  ← run before Teams 2 & 3 to get admin_token
+├── 📁 Team 4 | Admin  ← run before Teams 2 & 3 to get admin_token
 │   ├── ✅ Login – Get Admin Token             POST  /auth/login
 │   ├── ✅ Get All Users                       GET   /api/admin/users
 │   ├── ❌ Get All Users – Regular Token       GET   /api/admin/users      [negative]
@@ -69,7 +69,7 @@ Key design decisions:
 │   ├── ✅ Turn Off Recommendations            PUT   /api/admin/settings/recommendations_enabled
 │   └── ✅ Turn On Recommendations             PUT   /api/admin/settings/recommendations_enabled
 │
-├── 📁 Team 2 — Recommendations
+├── 📁 Team 2 | Recommendations
 │   ├── ✅ Get All Recommendations             GET   /api/recommendations
 │   ├── ✅ Get All – Filter by Category        GET   /api/recommendations?category=Movie
 │   ├── ✅ Create Recommendation               POST  /api/recommendations
@@ -79,7 +79,7 @@ Key design decisions:
 │   ├── ✅ Update Recommendation               PUT   /api/recommendations/{id}
 │   └── ❌ Update – Invalid Category Enum      PUT   /api/recommendations/{id} [negative]
 │
-├── 📁 Team 3 — Comments & Blacklist
+├── 📁 Team 3 | Comments & Blacklist
 │   ├── ✅ Get Comments for Recommendation     GET   /api/recommendations/{id}/comments
 │   ├── ✅ Add Comment                         POST  /api/recommendations/{id}/comments
 │   ├── ❌ Add Comment – Rating Out of Range   POST  /api/recommendations/{id}/comments [negative]
@@ -88,7 +88,7 @@ Key design decisions:
 │   ├── ✅ Add Email to Blacklist              POST  /api/admin/blacklist
 │   └── ❌ Add to Blacklist – Regular Token    POST  /api/admin/blacklist  [negative]
 │
-├── 📁 Team 5 — Cart
+├── 📁 Team 5 | Cart
 │   ├── ✅ Get Cart                            GET   /api/cart
 │   ├── ✅ Add Item to Cart                    PUT   /api/cart
 │   ├── ✅ Verify Cart Has Item                GET   /api/cart
@@ -96,7 +96,7 @@ Key design decisions:
 │   ├── ✅ Clear Cart                          PUT   /api/cart
 │   └── ✅ Verify Cart Is Empty                GET   /api/cart
 │
-└── 📁 Teardown — Cleanup
+└── 📁 Teardown | Cleanup
     ├── 🧹 Delete Comment                      DELETE /api/recommendations/{id}/comments/{id}
     ├── 🧹 Delete Blacklist Entry              DELETE /api/admin/blacklist/{entry_id}
     ├── 🧹 Delete Recommendation               DELETE /api/recommendations/{id}
@@ -126,7 +126,7 @@ Key design decisions:
 |----------|--------|------------|
 | `user_id` | Register New User | 🧹 Delete User Account |
 | `testuser_token` | Login – Get User Token | 🧹 Delete User Account |
-| `admin_token` | Login – Get Admin Token | *(persists — admin account is not deleted)* |
+| `admin_token` | Login – Get Admin Token | *(persists | admin account is not deleted)* |
 | `rec_id` | Create Recommendation | 🧹 Delete Recommendation |
 | `comment_id` | Add Comment | 🧹 Delete Comment |
 | `blacklist_id` | Add Email to Blacklist | 🧹 Delete Blacklist Entry |
@@ -135,7 +135,7 @@ Key design decisions:
 
 ## Running the Tests
 
-### Option 1 — Postman GUI
+### Option 1 | Postman GUI
 
 1. Click **Import** and select both files:
    - `API_testing_project.postman_collection.json`
@@ -145,7 +145,7 @@ Key design decisions:
 4. Right-click the collection → **Run collection**.
 5. Ensure **Run folder by folder in order** is enabled and click **Run**.
 
-### Option 2 — Newman CLI
+### Option 2 | Newman CLI
 
 Ideal for CI/CD pipelines (GitHub Actions, Jenkins, GitLab CI).
 
@@ -163,7 +163,7 @@ newman run API_testing_project.postman_collection.json \
 
 > **Tip:** Use `$(date +%s)` or a UUID in the email to guarantee uniqueness across runs.
 
-### Option 3 — GitHub Actions (CI/CD)
+### Option 3 | GitHub Actions (CI/CD)
 
 ```yaml
 name: API Test Suite
@@ -201,7 +201,7 @@ jobs:
           path: results/report.xml
 ```
 
-Store sensitive values (`adminuser`, `adminpass`, etc.) as **GitHub Secrets** — never commit them to the repository.
+Store sensitive values (`adminuser`, `adminpass`, etc.) as **GitHub Secrets** | never commit them to the repository.
 
 ---
 
@@ -210,10 +210,10 @@ Store sensitive values (`adminuser`, `adminpass`, etc.) as **GitHub Secrets** �
 Every request includes a minimum of **4 assertions** in the Tests tab:
 
 ```
-1. HTTP status code — exact match against the OpenAPI documented code
-2. Response time    — must be below 5 000 ms (accounts for cold-starts on Render's free tier)
-3. Schema check     — verifies that required fields exist and have the correct type
-4. Data integrity   — verifies that returned values match what was sent (e.g. returned email = sent email)
+1. HTTP status code | exact match against the OpenAPI documented code
+2. Response time    | must be below 5 000 ms (accounts for cold-starts on Render's free tier)
+3. Schema check     | verifies that required fields exist and have the correct type
+4. Data integrity   | verifies that returned values match what was sent (e.g. returned email = sent email)
 ```
 
 Negative tests additionally assert:
@@ -230,7 +230,7 @@ All console output follows the format:
 
 ## Clean Slate Principle
 
-A test run that does not clean up after itself is a failed test run — it pollutes the environment and causes false failures in subsequent runs.
+A test run that does not clean up after itself is a failed test run | it pollutes the environment and causes false failures in subsequent runs.
 
 This collection enforces clean slate via the **Teardown** folder, which:
 
