@@ -1,4 +1,4 @@
-# SV Students Recommend | API Test Suite
+# API Test Suite
 
 <div align="center">
 
