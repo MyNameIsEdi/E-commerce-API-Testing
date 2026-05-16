@@ -140,7 +140,7 @@ Key design decisions:
 1. Click **Import** and select both files:
    - `API_testing_project.postman_collection.json`
    - `Environment.json`
-2. Select the `SV Students Recommend – Environment` from the environment dropdown (top right).
+2. Select the `Environment.json` from the environment dropdown (top right).
 3. Fill in the six required variables (`BaseURL`, `name`, `email`, `password`, `adminuser`, `adminpass`).
 4. Right-click the collection → **Run collection**.
 5. Ensure **Run folder by folder in order** is enabled and click **Run**.
@@ -184,8 +184,8 @@ jobs:
 
       - name: Run Postman Collection
         run: |
-          newman run SV_Students_Recommend_Collection_v3_FINAL.json \
-            -e SV_Students_Recommend_Environment_FIXED.json \
+          newman run API_testing_project.postman_collection.json \
+            -e Environment.json \
             --env-var "email=ci-$(date +%s)@sv-test.dev" \
             --env-var "BaseURL=${{ secrets.API_BASE_URL }}" \
             --env-var "adminuser=${{ secrets.ADMIN_EMAIL }}" \
